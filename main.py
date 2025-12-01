@@ -11,8 +11,7 @@ from googleapiclient.http import MediaFileUpload
 PEXELS_API_KEY = os.environ.get('PEXELS_API_KEY', '')
 GOOGLE_CLIENT_SECRETS = os.environ.get('GOOGLE_CLIENT_SECRETS', '')
 
-
-# 25+ VIRAL TOPICS (Bible sayings + marriage tips)
+# 25+ VIRAL TOPICS (Bible + Marriage included)
 VIRAL_TOPICS = [
     "productivity hacks", "morning routine", "study hacks", "time blocking",
     "health tips", "mental health", "sleep optimization", "vitamin D benefits",
@@ -44,11 +43,11 @@ def create_short():
     
     script = generate_script(topic)
     
-    # TTS - Generate audio
+    # TTS Audio
     tts = gTTS(script, lang='en')
     tts.save('narration.mp3')
     
-    # FIXED: Load audio FIRST, get REAL duration
+    # Load audio FIRST to get real duration
     audio = AudioFileClip('narration.mp3')
     duration = min(audio.duration, 25)  # Max 25s
     print(f"📱 Audio duration: {duration:.1f}s")
@@ -56,7 +55,7 @@ def create_short():
     # Video matches EXACT audio length
     video = ColorClip(size=(1080,1920), color=(15,25,60), duration=duration)
     
-    # Text matches EXACT duration
+    # Simple title text
     txt_title = (TextClip(f"🔥 {topic.title()} 🔥", 
                          fontsize=90, 
                          color='yellow', 
@@ -64,7 +63,6 @@ def create_short():
                 .set_position('center')
                 .set_duration(duration))
     
-    # NO SUBCLIP - Use full audio length
     final = CompositeVideoClip([video.set_audio(audio), txt_title])
     
     output = f"short_{random.randint(1000,9999)}.mp4"
@@ -77,8 +75,50 @@ def create_short():
     title = f"🔥 {topic.title()} (#shorts #viral)"
     return output, title
 
+def upload_to_youtube(video_file, title):
+    print("🔐 Authenticating YouTube...")
+    
+    if not GOOGLE_CLIENT_SECRETS:
+        print("❌ GOOGLE_CLIENT_SECRETS missing! Add to GitHub Secrets")
+        return
+    
+    try:
+        client_secrets = json.loads(GOOGLE_CLIENT_SECRETS)
+        flow = InstalledAppFlow.from_client_config(
+            {"installed": client_secrets["installed"]}, 
+            ['https://www.googleapis.com/auth/youtube.upload']
+        )
+        youtube = build('youtube', 'v3', credentials=flow.run_console())
+        
+        body = {
+            'snippet': {
+                'title': title,
+                'description': f'{title}\n\n#shorts #viral #fyp #motivation',
+                'tags': ['shorts', 'viral', 'tips', 'motivation', 'hacks'],
+                'categoryId': '22'  # People & Blogs
+            },
+            'status': {'privacyStatus': 'public'}
+        }
+        
+        media = MediaFileUpload(video_file, chunksize=-1, resumable=True)
+        request = youtube.videos().insert(part=','.join(body.keys()), body=body, media_body=media)
+        
+        response = None
+        while response is None:
+            status, response = request.next_chunk()
+            if status:
+                print(f"📤 Upload: {int(status.progress()*100)}%")
+        
+        print(f"✅ UPLOADED: https://youtube.com/shorts/{response['id']}")
+        os.remove(video_file)
+        
+    except Exception as e:
+        print(f"❌ Upload failed: {str(e)}")
+        print("📥 Download MP4 from artifacts")
+
 if __name__ == "__main__":
-    print("🚀 YouTube Shorts Bot")
+    print("🚀 YouTube Shorts Bot Starting...")
     video_file, title = create_short()
-    print(f"✅ Created: {title}")
-    print(f"📱 File: {video_file}")
+    print(f"📤 Uploading: {title}")
+    upload_to_youtube(video_file, title)
+    print("🎉 YouTube short published!")
