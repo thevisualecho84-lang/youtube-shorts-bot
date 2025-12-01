@@ -15,10 +15,13 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install FFmpeg
-      run: sudo apt update && sudo apt install -y ffmpeg
+    - name: Install System Dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y ffmpeg imagemagick libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1
+        sudo sed -i 's/<policy domain="path" rights="none" pattern="@\*"/<policy domain="path" rights="read|write" pattern="@\*"/' /etc/ImageMagick-6/policy.xml
     
-    - name: Install Python dependencies
+    - name: Install Python Dependencies
       run: |
         pip install --upgrade pip
         pip install gtts==2.5.1 moviepy==1.0.3 pillow==10.4.0
@@ -30,7 +33,7 @@ jobs:
         GOOGLE_CLIENT_SECRETS: ${{ secrets.GOOGLE_CLIENT_SECRETS }}
       run: python main.py
     
-    - name: Save artifacts
+    - name: Save Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: shorts-output
