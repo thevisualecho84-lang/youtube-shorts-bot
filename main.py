@@ -2,11 +2,15 @@ import os
 import json
 import random
 from gtts import gTTS
-from moviepy.editor import *
+from moviepy.editor import TextClip, ColorClip, CompositeVideoClip, AudioFileClip
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.http import MediaFileUpload
 
 # GitHub SECRETS
 PEXELS_API_KEY = os.environ.get('PEXELS_API_KEY', '')
 GOOGLE_CLIENT_SECRETS = os.environ.get('GOOGLE_CLIENT_SECRETS', '')
+
 
 # 25+ VIRAL TOPICS (Bible sayings + marriage tips)
 VIRAL_TOPICS = [
