@@ -48,28 +48,24 @@ def create_short():
     tts = gTTS(script, lang='en')
     tts.save('narration.mp3')
     
-    # SIMPLIFIED: Colored gradient + basic text
+    # ULTRA-SIMPLE: Solid color + BIG title only
     duration = 25
-    # Blue gradient background
-    video = ColorClip(size=(1080,1920), color=(20,40,100), duration=duration)
+    video = ColorClip(size=(1080,1920), color=(15,25,60), duration=duration)
     
-    # SIMPLIFIED TEXT - No ImageMagick needed
-    txt = (TextClip("🔥 " + topic.title() + " 🔥", 
-                    fontsize=80, 
-                    color='white', 
-                    font='Arial-Bold',
-                    size=(1000, None))
-           .set_position('center')
-           .set_duration(duration))
+    # MINIMAL TEXT - Bulletproof
+    txt_title = TextClip(f"🔥 {topic.title()} 🔥", 
+                        fontsize=90, 
+                        color='yellow', 
+                        font='Arial',
+                        size=(900, None)).set_position('center').set_duration(duration)
     
     audio = AudioFileClip('narration.mp3').subclip(0, duration)
-    final = CompositeVideoClip([video.set_audio(audio), txt])
+    final = CompositeVideoClip([video.set_audio(audio), txt_title])
     
     output = f"short_{random.randint(1000,9999)}.mp4"
     final.write_videofile(output, fps=24, audio_codec='aac', verbose=False, logger=None)
     
-    # Cleanup
-    final.close(); video.close(); audio.close(); txt.close()
+    final.close(); video.close(); audio.close(); txt_title.close()
     os.remove('narration.mp3')
     
     title = f"🔥 {topic.title()} (#shorts #viral)"
