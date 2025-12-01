@@ -17,17 +17,17 @@ jobs:
     
     - name: Install System Dependencies
       run: |
-        sudo apt update
-        sudo apt install -y ffmpeg imagemagick libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1 libfontconfig1
+        sudo apt update -qq
+        sudo apt install -y ffmpeg imagemagick libglib2.0-0 libsm6 libxext6 libfontconfig1
         sudo sed -i 's/<policy domain="path" rights="none" pattern="@\*"/<policy domain="path" rights="read|write" pattern="@\*"/' /etc/ImageMagick-6/policy.xml
     
     - name: Install Python Dependencies
       run: |
         pip install --upgrade pip
         pip install gtts==2.5.1 moviepy==1.0.3 pillow==10.4.0
-        pip install google-api-python-client==2.15.0 google-auth-oauthlib==1.2.0 google-auth-httplib2==0.2.0 google-auth==2.35.0
+        pip install google-api-python-client==2.15.0 google-auth-oauthlib==1.2.0
     
-    - name: Generate & Upload Short
+    - name: Generate Short
       env:
         PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         GOOGLE_CLIENT_SECRETS: ${{ secrets.GOOGLE_CLIENT_SECRETS }}
@@ -39,4 +39,3 @@ jobs:
         name: shorts-output
         path: |
           *.mp4
-          *.log
