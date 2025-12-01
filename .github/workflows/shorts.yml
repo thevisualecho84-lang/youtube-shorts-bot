@@ -1,11 +1,11 @@
 name: YouTube Shorts Bot
 on:
   schedule:
-    - cron: '0 0,4,8,12,16,20 * * *'
-  workflow_dispatch:
+    - cron: '0 0,4,8,12,16,20 * * *'  # 6x daily UTC
+  workflow_dispatch:  # Manual trigger
 
 jobs:
-  create-short:
+  create-upload:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -25,9 +25,9 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install gtts==2.5.1 moviepy==1.0.3 pillow==10.4.0
-        pip install google-api-python-client==2.15.0 google-auth-oauthlib==1.2.0
+        pip install google-api-python-client==2.15.0 google-auth-oauthlib==1.2.0 google-auth-httplib2==0.2.0 google-auth==2.35.0
     
-    - name: Generate Short
+    - name: Generate & Upload Short
       env:
         PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         GOOGLE_CLIENT_SECRETS: ${{ secrets.GOOGLE_CLIENT_SECRETS }}
@@ -39,3 +39,5 @@ jobs:
         name: shorts-output
         path: |
           *.mp4
+          *.log
+          token.json
