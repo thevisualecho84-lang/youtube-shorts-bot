@@ -1,8 +1,8 @@
 name: YouTube Shorts Bot
 on:
   schedule:
-    - cron: '0 0,4,8,12,16,20 * * *'  # 6x daily
-  workflow_dispatch:
+    - cron: '0 0,4,8,12,16,20 * * *'  # 6x daily UTC
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   create-short:
@@ -17,9 +17,12 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pip install gtts moviepy pillow
+        pip install gtts moviepy pillow google-api-python-client google-auth-oauthlib google-auth-httplib2
     
-    - name: Generate Short
+    - name: Generate & Upload Short
+      env:
+        PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        GOOGLE_CLIENT_SECRETS: ${{ secrets.GOOGLE_CLIENT_SECRETS }}
       run: python main.py
     
     - name: Save logs
