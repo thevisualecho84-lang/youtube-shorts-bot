@@ -1,8 +1,8 @@
 name: YouTube Shorts Bot
 on:
   schedule:
-    - cron: '0 0,4,8,12,16,20 * * *'  # 6x daily UTC
-  workflow_dispatch:  # Manual trigger
+    - cron: '0 0,4,8,12,16,20 * * *'
+  workflow_dispatch:
 
 jobs:
   create-short:
@@ -15,10 +15,14 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install dependencies
+    - name: Install FFmpeg
+      run: sudo apt update && sudo apt install -y ffmpeg
+    
+    - name: Install Python dependencies
       run: |
-        pip install gtts moviepy==1.0.3 pillow google-api-python-client google-auth-oauthlib google-auth-httplib2 google-auth
-
+        pip install --upgrade pip
+        pip install gtts==2.5.1 moviepy==1.0.3 pillow==10.4.0
+        pip install google-api-python-client==2.15.0 google-auth-oauthlib==1.2.0 google-auth-httplib2==0.2.0 google-auth==2.35.0
     
     - name: Generate & Upload Short
       env:
@@ -26,10 +30,10 @@ jobs:
         GOOGLE_CLIENT_SECRETS: ${{ secrets.GOOGLE_CLIENT_SECRETS }}
       run: python main.py
     
-    - name: Save logs
+    - name: Save artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: short-logs
+        name: shorts-output
         path: |
           *.mp4
           *.log
