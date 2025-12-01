@@ -44,17 +44,14 @@ def create_short():
     
     script = generate_script(topic)
     
-    # TTS Audio
+    # TTS
     tts = gTTS(script, lang='en')
     tts.save('narration.mp3')
     
-    # Vertical short (1080x1920)
+    # Fixed imports for MoviePy 1.0.3
     duration = 25
     video = ColorClip(size=(1080,1920), color=(20,40,80), duration=duration)
-    
-    # Text overlay
-    txt = (TextClip(script, fontsize=55, color='white', font='Arial-Bold')
-           .set_position('center').set_duration(duration))
+    txt = TextClip(script, fontsize=55, color='white', font='Arial-Bold').set_position('center').set_duration(duration)
     
     audio = AudioFileClip('narration.mp3').subclip(0, duration)
     final = CompositeVideoClip([video.set_audio(audio), txt])
@@ -62,7 +59,6 @@ def create_short():
     output = f"short_{random.randint(1000,9999)}.mp4"
     final.write_videofile(output, fps=24, audio_codec='aac', verbose=False, logger=None)
     
-    # Cleanup
     final.close(); video.close(); audio.close(); txt.close()
     os.remove('narration.mp3')
     
