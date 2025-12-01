@@ -44,27 +44,33 @@ def create_short():
     
     script = generate_script(topic)
     
-    # TTS
+    # TTS - Generate audio
     tts = gTTS(script, lang='en')
     tts.save('narration.mp3')
     
-    # ULTRA-SIMPLE: Solid color + BIG title only
-    duration = 25
+    # FIXED: Load audio FIRST, get REAL duration
+    audio = AudioFileClip('narration.mp3')
+    duration = min(audio.duration, 25)  # Max 25s
+    print(f"📱 Audio duration: {duration:.1f}s")
+    
+    # Video matches EXACT audio length
     video = ColorClip(size=(1080,1920), color=(15,25,60), duration=duration)
     
-    # MINIMAL TEXT - Bulletproof
-    txt_title = TextClip(f"🔥 {topic.title()} 🔥", 
-                        fontsize=90, 
-                        color='yellow', 
-                        font='Arial',
-                        size=(900, None)).set_position('center').set_duration(duration)
+    # Text matches EXACT duration
+    txt_title = (TextClip(f"🔥 {topic.title()} 🔥", 
+                         fontsize=90, 
+                         color='yellow', 
+                         font='Arial')
+                .set_position('center')
+                .set_duration(duration))
     
-    audio = AudioFileClip('narration.mp3').subclip(0, duration)
+    # NO SUBCLIP - Use full audio length
     final = CompositeVideoClip([video.set_audio(audio), txt_title])
     
     output = f"short_{random.randint(1000,9999)}.mp4"
     final.write_videofile(output, fps=24, audio_codec='aac', verbose=False, logger=None)
     
+    # Cleanup
     final.close(); video.close(); audio.close(); txt_title.close()
     os.remove('narration.mp3')
     
