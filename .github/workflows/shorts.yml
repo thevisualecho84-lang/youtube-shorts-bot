@@ -17,7 +17,8 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pip install gtts moviepy pillow google-api-python-client google-auth-oauthlib google-auth-httplib2
+        pip install gtts moviepy==1.0.3 pillow google-api-python-client google-auth-oauthlib google-auth-httplib2 google-auth
+
     
     - name: Generate & Upload Short
       env:
