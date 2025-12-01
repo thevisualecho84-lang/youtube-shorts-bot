@@ -1,0 +1,31 @@
+name: YouTube Shorts Bot
+on:
+  schedule:
+    - cron: '0 0,4,8,12,16,20 * * *'  # 6x daily
+  workflow_dispatch:
+
+jobs:
+  create-short:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install gtts moviepy pillow
+    
+    - name: Generate Short
+      run: python main.py
+    
+    - name: Save logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: short-logs
+        path: |
+          *.mp4
+          *.log
